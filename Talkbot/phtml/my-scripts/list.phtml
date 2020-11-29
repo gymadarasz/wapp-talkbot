@@ -3,4 +3,10 @@
 <?php include $this->getTemplateFile('messages.phtml') ?>
 
 Scripts:
-<?php var_dump($my_scripts); ?>
+<ul>
+    <?php foreach($my_scripts as $script): ?>
+    <li><?php var_dump($script); ?></li>
+    <?php endforeach;?>
+</ul>
+
+<a href="?q=my-scripts/create">Create</a>
