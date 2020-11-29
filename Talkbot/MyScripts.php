@@ -37,11 +37,24 @@ class MyScripts
     const ROUTES = [
         'protected' => [
             'GET' => [
-                'my-scripts/list' => [MyScripts::class, 'viewList'],
-                'my-scripts/create' => [MyScripts::class, 'viewCreate'],
+                '' => [
+                    'class' => MyScripts::class,
+                    'method' => 'viewList'
+                ],
+                'my-scripts/list' => [
+                    'class' => MyScripts::class,
+                    'method' => 'viewList'
+                ],
+                'my-scripts/create' => [
+                    'class' => MyScripts::class,
+                    'method' => 'viewCreate'
+                ],
             ],
             'POST' => [
-                'my-scripts/create' => [MyScripts::class, 'doCreate'],
+                'my-scripts/create' => [
+                    'class' => MyScripts::class,
+                    'method' => 'doCreate'
+                ],
             ],
         ],
     ];
