@@ -13,6 +13,7 @@
 
 namespace Madsoft\Talkbot\Test;
 
+use Madsoft\Library\Crud;
 use Madsoft\Library\Session;
 use Madsoft\Library\Tester\Test;
 
@@ -29,15 +30,18 @@ use Madsoft\Library\Tester\Test;
 class MyScriptsTest extends Test
 {
     protected Session $session;
+    protected Crud $crud;
      
     /**
      * Method __construct
      *
      * @param Session $session session
+     * @param Crud    $crud    crud
      */
-    public function __construct(Session $session)
+    public function __construct(Session $session, Crud $crud)
     {
         $this->session = $session;
+        $this->crud = $crud;
     }
     
     /**
@@ -63,6 +67,8 @@ class MyScriptsTest extends Test
         $this->session->set('uid', 1);
         
         $this->canSeeListWorks();
+        
+        $this->canSeeEditWorks();
         
         $this->session->set('uid', 0);
     }
@@ -97,6 +103,10 @@ class MyScriptsTest extends Test
             htmlentities('Script "testscript" is created'),
             $result
         );
+        
+        $scripts = $this->crud->getRows('script', ['id', 'name']);
+        $this->assertEquals(1, count($scripts));
+        $this->assertEquals('testscript', $scripts[0]['name']);
     }
     
     /**
@@ -142,6 +152,12 @@ class MyScriptsTest extends Test
             htmlentities('Script "test2script" is created'),
             $result
         );
+        
+        $scripts = $this->crud->getRows('script', ['id', 'name']);
+        $this->assertEquals(2, count($scripts));
+        // TODO: ordered lists
+        //        $this->assertEquals('testscript', $scripts[0]['name']);
+        //        $this->assertEquals('test2script', $scripts[1]['name']);
     }
     
     /**
@@ -155,5 +171,30 @@ class MyScriptsTest extends Test
         $this->assertStringContains('My Scripts', $result);
         $this->assertStringContains('test2script', $result);
         $this->assertStringNotContains('testscript', $result);
+    }
+    
+    /**
+     * Method canSeeEditWorks
+     *
+     * @return void
+     */
+    protected function canSeeEditWorks(): void
+    {
+        $scriptsBeforeEdit = $this->crud->getOwnedRows('script', ['id', 'name']);
+        $count = count($scriptsBeforeEdit);
+        $script = $scriptsBeforeEdit[0];
+        $contents = $this->post(
+            'q=my-scripts/edit',
+            [
+                'csrf' => $this->session->get('csrf'),
+                'script_id' => $script['id'],
+                'name' => 'test3scriptMOD',
+            ]
+        );
+        $this->assertStringContains('Script saved', $contents);
+        $scriptsAfterEdit = $this->crud->getOwnedRows('script', ['id', 'name']);
+        $this->assertEquals($count, count($scriptsAfterEdit));
+        $this->assertEquals($script['id'], $scriptsAfterEdit[0]['id']);
+        $this->assertEquals('test3scriptMOD', $scriptsAfterEdit[0]['name']);
     }
 }

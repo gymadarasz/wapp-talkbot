@@ -106,7 +106,7 @@ class MyScripts
     public function viewList(): string
     {
         return $this->responder->setTplfile('my-scripts/list.phtml')->getResponse(
-            ['my_scripts' => $this->crud->get('script', ['id', 'name'], [], 0)]
+            ['my_scripts' => $this->crud->getOwnedRows('script', ['id', 'name'])]
         );
     }
     
@@ -159,7 +159,7 @@ class MyScripts
             )->getErrorResponse();
         }
         
-        $myScripts = $this->crud->get('script', ['id', 'name'], [], 0);
+        $myScripts = $this->crud->getOwnedRows('script', ['id', 'name']);
         return $this->responder->setTplfile(
             'my-scripts/list.phtml'
         )->getSuccessResponse(
@@ -178,11 +178,10 @@ class MyScripts
     public function editScript(): string
     {
         $scriptId = $this->params->get('script_id', '');
-        $script = $this->crud->get(
+        $script = $this->crud->getOwnedRow(
             'script',
             ['id', 'name'],
-            ['id' => $scriptId],
-            1
+            ['id' => $scriptId]
         );
         return $this
             ->responder
@@ -203,18 +202,17 @@ class MyScripts
             'id' => $this->params->get('script_id'),
             'name' => $this->params->get('name'),
         ];
-        $affectedRows = $this->crud->set(
+        $affectedRows = $this->crud->setOwnedRow(
             'script',
             ['name' => $script['name']],
             ['id' => $script['id']],
         );
         if (!$affectedRows) {
             $scriptId = $this->params->get('script_id', '');
-            $script = $this->crud->get(
+            $script = $this->crud->getOwnedRow(
                 'script',
                 ['id', 'name'],
-                ['id' => $scriptId],
-                1
+                ['id' => $scriptId]
             );
             return $this->responder->setTplfile('my-scripts/edit.phtml')
                 ->getErrorResponse('Save error', [], $script);
@@ -223,11 +221,9 @@ class MyScripts
             ->getSuccessResponse(
                 'Script saved',
                 [
-                    'my_scripts' => $this->crud->get(
+                    'my_scripts' => $this->crud->getOwnedRows(
                         'script',
-                        ['id', 'name'],
-                        [],
-                        0
+                        ['id', 'name']
                     )
                 ]
             );

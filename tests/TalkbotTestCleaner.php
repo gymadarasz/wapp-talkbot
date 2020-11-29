@@ -35,7 +35,7 @@ class TalkbotTestCleaner extends LibraryTestCleaner
      */
     public function cleanUp(): void
     {
-        $this->crud->del('script', [], 0);
+        $this->crud->del('script', [], 'AND', 0, -1);
         $this->deleteMails();
     }
 }
