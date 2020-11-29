@@ -1,0 +1,10 @@
+<?php $this->restrict(); ?>
+<h1>My Scripts / Create</h1>
+<?php include $this->getTemplateFile('messages.phtml') ?>
+
+<form method="POST" action="?q=my-scripts/edit">
+    <?=$csrf?>
+    <input type="hidden" name="script_id" value="<?=$id?>">
+    <input type="text" name="name" value="<?=$name?>" placeholder="Name">
+    <input type="submit" value="Edit">
+</form>

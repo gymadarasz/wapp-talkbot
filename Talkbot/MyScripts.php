@@ -49,11 +49,19 @@ class MyScripts
                     'class' => MyScripts::class,
                     'method' => 'viewCreate'
                 ],
+                'my-scripts/edit' => [
+                    'class' => MyScripts::class,
+                    'method' => 'editScript'
+                ],
             ],
             'POST' => [
                 'my-scripts/create' => [
                     'class' => MyScripts::class,
                     'method' => 'doCreate'
+                ],
+                'my-scripts/edit' => [
+                    'class' => MyScripts::class,
+                    'method' => 'doEdit'
                 ],
             ],
         ],
@@ -98,7 +106,7 @@ class MyScripts
     public function viewList(): string
     {
         return $this->responder->setTplfile('my-scripts/list.phtml')->getResponse(
-            ['my_scripts' => $this->crud->get('script', ['name'], [], 0)]
+            ['my_scripts' => $this->crud->get('script', ['id', 'name'], [], 0)]
         );
     }
     
@@ -151,12 +159,77 @@ class MyScripts
             )->getErrorResponse();
         }
         
-        $myScripts = $this->crud->get('script', ['name'], [], 0);
+        $myScripts = $this->crud->get('script', ['id', 'name'], [], 0);
         return $this->responder->setTplfile(
             'my-scripts/list.phtml'
         )->getSuccessResponse(
             'Script "' . $name . '" is created',
             ['my_scripts' => $myScripts]
         );
+    }
+    
+    /**
+     * Method editScript
+     *
+     * @return string
+     *
+     * @suppress PhanUnreferencedPublicMethod
+     */
+    public function editScript(): string
+    {
+        $scriptId = $this->params->get('script_id', '');
+        $script = $this->crud->get(
+            'script',
+            ['id', 'name'],
+            ['id' => $scriptId],
+            1
+        );
+        return $this
+            ->responder
+            ->setTplfile('my-scripts/edit.phtml')
+            ->getResponse($script);
+    }
+    
+    /**
+     * Method doEdit
+     *
+     * @return string
+     *
+     * @suppress PhanUnreferencedPublicMethod
+     */
+    public function doEdit(): string
+    {
+        $script = [
+            'id' => $this->params->get('script_id'),
+            'name' => $this->params->get('name'),
+        ];
+        $affectedRows = $this->crud->set(
+            'script',
+            ['name' => $script['name']],
+            ['id' => $script['id']],
+        );
+        if (!$affectedRows) {
+            $scriptId = $this->params->get('script_id', '');
+            $script = $this->crud->get(
+                'script',
+                ['id', 'name'],
+                ['id' => $scriptId],
+                1
+            );
+            return $this->responder->setTplfile('my-scripts/edit.phtml')
+                ->getErrorResponse('Save error', [], $script);
+        }
+        return $this->responder->setTplfile('my-scripts/list.phtml')
+            ->getSuccessResponse(
+                'Script saved',
+                [
+                    'my_scripts' => $this->crud->get(
+                        'script',
+                        ['id', 'name'],
+                        [],
+                        0
+                    )
+                ]
+            );
     }
 }
